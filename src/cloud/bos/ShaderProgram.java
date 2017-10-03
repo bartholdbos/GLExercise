@@ -58,4 +58,12 @@ public class ShaderProgram {
     public static void unbind() {
         glUseProgram(0);
     }
+
+    /**
+     * TEMP
+     * @return int
+     */
+    public int getProgramId(){
+        return programId;
+    }
 }

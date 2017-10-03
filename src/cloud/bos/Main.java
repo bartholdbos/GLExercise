@@ -9,6 +9,7 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.IntBuffer;
 
+import static java.lang.Math.sin;
 import static org.lwjgl.glfw.Callbacks.glfwFreeCallbacks;
 import static org.lwjgl.glfw.GLFW.*;
 import static org.lwjgl.opengl.GL11.*;
@@ -85,42 +86,52 @@ public class Main {
         }
 
         float vertices[] ={
-                0.5f,  0.5f, 0.0f,   // top right
-                0.5f, -0.5f, 0.0f,   // bottom right
-                -0.5f, -0.5f, 0.0f,  // bottom left
-                -0.5f,  0.5f, 0.0f   // top left
+                 0.5f, -0.5f, 0.0f,  1.0f, 0.0f, 0.0f,   // bottom right
+                -0.5f, -0.5f, 0.0f,  0.0f, 1.0f, 0.0f,   // bottom left
+                 0.0f,  0.5f, 0.0f,  0.0f, 0.0f, 1.0f    // top
+//                -0.5f,  0.5f, 0.0f   // top left
         };
 
-        int indices[] = { // new
-                0, 1, 3,
-                1, 2, 3
-        };
+//        int indices[] = { // new
+//                0, 1, 3,
+//                1, 2, 3
+//        };
 
         int VAO = glGenVertexArrays();
         int VBO = glGenBuffers();
-        int EBO = glGenBuffers(); // new
+//        int EBO = glGenBuffers(); // new
         glBindVertexArray(VAO);
         glBindBuffer(GL_ARRAY_BUFFER, VBO);
         glBufferData(GL_ARRAY_BUFFER, vertices, GL_STATIC_DRAW);
-        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
-        glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices, GL_STATIC_DRAW);
+//        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
+//        glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices, GL_STATIC_DRAW);
 
-        glVertexAttribPointer(0, 3, GL_FLOAT, false, 0, 0);
+        glVertexAttribPointer(0, 3, GL_FLOAT, false, 6, 0);
         glEnableVertexAttribArray(0);
+        glVertexAttribPointer(1, 3, GL_FLOAT, false, 6, 0);
+        glEnableVertexAttribArray(1);
+
         glBindBuffer(GL_ARRAY_BUFFER, 0);
         glBindVertexArray(0);
-        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+//        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 
-        glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+//        glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
         while (!glfwWindowShouldClose(window)) {
             processInput(window);
 
             glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-            shaderProgram.bind();
+
+//            float timeValue = (float) glfwGetTime();
+//            float greenValue = (float) ((sin(timeValue) / 2.0f) + 0.5f);
+//            int vertexColorLocation = glGetUniformLocation(shaderProgram.getProgramId(), "vertexColor");
+//            shaderProgram.bind();
+//            glUniform4f(vertexColorLocation, 0.0f, greenValue, 0.0f, 1.0f);
+
             glBindVertexArray(VAO);
-            glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+            //glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+            glDrawArrays(GL_TRIANGLES, 0, 3);
 
             glfwSwapBuffers(window);
             glfwPollEvents();
