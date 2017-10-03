@@ -49,21 +49,37 @@ public class ShaderProgram {
         if (glGetProgrami(programId, GL_LINK_STATUS) == GL_FALSE) {
             throw new RuntimeException("Error linking ShaderProgram: " + glGetProgramInfoLog(programId));
         }
+
+        int[] shaders = new int[glGetProgrami(programId, GL_ATTACHED_SHADERS)];
+        glGetAttachedShaders(programId, null, shaders);
+
+        for (int shader : shaders) {
+            glDetachShader(programId, shader);
+            glDeleteShader(shader);
+        }
+    }
+
+    public void setBool(String name, boolean value) {
+        glUniform1i(glGetUniformLocation(programId, name), value ? 1 : 0);
+    }
+
+    public void setInt(String name, int value) {
+        glUniform1i(glGetUniformLocation(programId, name), value);
+    }
+
+    public void setFloat(String name, float value) {
+        glUniform1f(glGetUniformLocation(programId, name), value);
     }
 
     public void bind() {
         glUseProgram(programId);
     }
 
-    public static void unbind() {
+    public void unbind() {
         glUseProgram(0);
     }
 
-    /**
-     * TEMP
-     * @return int
-     */
-    public int getProgramId(){
-        return programId;
+    public void delete() {
+        glDeleteProgram(programId);
     }
 }

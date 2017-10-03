@@ -122,21 +122,23 @@ public class Main {
             glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-
-//            float timeValue = (float) glfwGetTime();
-//            float greenValue = (float) ((sin(timeValue) / 2.0f) + 0.5f);
-//            int vertexColorLocation = glGetUniformLocation(shaderProgram.getProgramId(), "vertexColor");
-//            shaderProgram.bind();
-//            glUniform4f(vertexColorLocation, 0.0f, greenValue, 0.0f, 1.0f);
-
+            float timeValue = (float) glfwGetTime();
+            float greenValue = (float) ((sin(timeValue) / 2.0f) + 0.5f);
             shaderProgram.bind();
+            shaderProgram.setFloat("green", greenValue);
+
+
             glBindVertexArray(VAO);
             //glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
             glDrawArrays(GL_TRIANGLES, 0, 3);
 
+            shaderProgram.unbind();
+
             glfwSwapBuffers(window);
             glfwPollEvents();
         }
+
+        shaderProgram.delete();
     }
 
     private void destroy() {
