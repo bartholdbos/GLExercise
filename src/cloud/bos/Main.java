@@ -85,10 +85,10 @@ public class Main {
             e.printStackTrace();
         }
 
-        float vertices[] ={
-                 0.5f, -0.5f, 0.0f,  1.0f, 0.0f, 0.0f,   // bottom right
-                -0.5f, -0.5f, 0.0f,  0.0f, 1.0f, 0.0f,   // bottom left
-                 0.0f,  0.5f, 0.0f,  0.0f, 0.0f, 1.0f    // top
+        float vertices[] = {
+                0.5f, -0.5f, 0.0f, 1.0f, 0.0f, 0.0f,   // bottom right
+                -0.5f, -0.5f, 0.0f, 0.0f, 1.0f, 0.0f,   // bottom left
+                0.0f, 0.5f, 0.0f, 0.0f, 0.0f, 1.0f    // top
 //                -0.5f,  0.5f, 0.0f   // top left
         };
 
@@ -106,9 +106,9 @@ public class Main {
 //        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
 //        glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices, GL_STATIC_DRAW);
 
-        glVertexAttribPointer(0, 3, GL_FLOAT, false, 6, 0);
+        glVertexAttribPointer(0, 3, GL_FLOAT, false, 6 * Float.SIZE / Byte.SIZE, 0);
         glEnableVertexAttribArray(0);
-        glVertexAttribPointer(1, 3, GL_FLOAT, false, 6, 0);
+        glVertexAttribPointer(1, 3, GL_FLOAT, false, 6 * Float.SIZE / Byte.SIZE, 3 * Float.SIZE / Byte.SIZE);
         glEnableVertexAttribArray(1);
 
         glBindBuffer(GL_ARRAY_BUFFER, 0);
@@ -129,6 +129,7 @@ public class Main {
 //            shaderProgram.bind();
 //            glUniform4f(vertexColorLocation, 0.0f, greenValue, 0.0f, 1.0f);
 
+            shaderProgram.bind();
             glBindVertexArray(VAO);
             //glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
             glDrawArrays(GL_TRIANGLES, 0, 3);
@@ -146,8 +147,8 @@ public class Main {
         glfwSetErrorCallback(null).free();
     }
 
-    private void processInput(long window){
-        if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS){
+    private void processInput(long window) {
+        if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS) {
             glfwSetWindowShouldClose(window, true);
         }
     }
