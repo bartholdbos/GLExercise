@@ -1,5 +1,7 @@
 package cloud.bos;
 
+import cloud.bos.math.Matrix4f;
+import cloud.bos.math.Vector3f;
 import org.lwjgl.glfw.GLFWErrorCallback;
 import org.lwjgl.glfw.GLFWVidMode;
 import org.lwjgl.opengl.GL;
@@ -25,6 +27,28 @@ public class Main {
     private long window;
 
     public Main() {
+        Matrix4f translate = new Matrix4f(new float[][]{
+                {1, 0, 0, 1},
+                {0, 1, 0, 2},
+                {0, 0, 1, 3},
+                {0, 0, 0, 1}
+        });
+
+        Matrix4f scale = new Matrix4f(new float[][]{
+                {2, 0, 0, 0},
+                {0, 2, 0, 0},
+                {0, 0, 2, 0},
+                {0, 0, 0, 1}
+        });
+
+        Vector3f vector = new Vector3f(10, 10, 10);
+
+        Matrix4f scaletranslate = translate.mul(scale);
+        vector.mul(scaletranslate);
+        System.out.println(scaletranslate);
+        System.out.println(vector);
+
+
         init();
         loop();
         destroy();
@@ -78,8 +102,8 @@ public class Main {
     private void loop() {
         ShaderProgram shaderProgram = new ShaderProgram();
         try {
-            shaderProgram.loadShader(new File("shaders/vertex.shader"), GL_VERTEX_SHADER);
-            shaderProgram.loadShader(new File("shaders/fragment.shader"), GL_FRAGMENT_SHADER);
+            shaderProgram.loadShader(new File("shaders/shader.vert"), GL_VERTEX_SHADER);
+            shaderProgram.loadShader(new File("shaders/shader.frag"), GL_FRAGMENT_SHADER);
             shaderProgram.link();
         } catch (IOException e) {
             e.printStackTrace();
@@ -116,6 +140,7 @@ public class Main {
 //        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 
 //        glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+
         while (!glfwWindowShouldClose(window)) {
             processInput(window);
 
@@ -125,7 +150,7 @@ public class Main {
             float timeValue = (float) glfwGetTime();
             float greenValue = (float) ((sin(timeValue) / 2.0f) + 0.5f);
             shaderProgram.bind();
-            shaderProgram.setFloat("green", greenValue);
+            //shaderProgram.setFloat("green", greenValue);
 
 
             glBindVertexArray(VAO);
