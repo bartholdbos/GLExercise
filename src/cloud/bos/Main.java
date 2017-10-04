@@ -13,7 +13,9 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.IntBuffer;
 
+import static cloud.bos.math.Mathf.cos;
 import static java.lang.Math.PI;
+import static java.lang.Math.floor;
 import static org.lwjgl.glfw.Callbacks.glfwFreeCallbacks;
 import static org.lwjgl.glfw.GLFW.*;
 import static org.lwjgl.opengl.GL11.*;
@@ -27,6 +29,8 @@ import static org.lwjgl.system.MemoryUtil.NULL;
 public class Main {
 
     private long window;
+    private Vector3f position = new Vector3f();
+    private Vector3f direction = new Vector3f();
 
     public Main() {
         init();
@@ -137,13 +141,32 @@ public class Main {
             Vector3f scale= new Vector3f(scaler, scaler, scaler);
             //transtest.mul(Transform.scaleMatrix(scale));
 
-            transtest.mul(Transform.translateMatrix(scale));
             //System.out.println(transtest);
 
-//            float scaler1 = (float) glfwGetTime() / 2 % 2 * (float) PI;
-//            transtest.mul(Transform.rotationMatrix(new Vector3f(0.0f, 0.0f, scaler1)));
+            float scaler1 = (float) glfwGetTime() / 2 % 2 * (float) PI;
+//            transtest.mul(Transform.translateMatrix(new Vector3f(0.5f, -0.5f, 0.0f)));
+//            transtest.mul(Transform.rotationMatrix(new Vector3f(0.0f, scaler1, 0.0f)));
 
             shaderProgram.setMatrix4f("transform", transtest);
+
+            Matrix4f projectionMatrix = Transform.identityMatrix();
+
+
+            Matrix4f viewMatrix = Transform.identityMatrix();
+//            cos(verticalAngle) * sin(horizontalAngle),
+//                    sin(verticalAngle),
+//                    cos(verticalAngle) * cos(horizontalAngle)
+            viewMatrix.mul(Transform.rotationMatrix(new Vector3f(
+                    cos(direction.getX()),
+                    0.0f * (float) PI,
+                    0.0f * (float) PI
+            )));
+
+
+            Matrix4f modelMatrix = Transform.identityMatrix();
+
+
+            shaderProgram.setMatrix4f("view", projectionMatrix.mul(viewMatrix).mul(modelMatrix));
 
             glBindVertexArray(VAO);
             glDrawArrays(GL_TRIANGLES, 0, 3);
@@ -169,6 +192,14 @@ public class Main {
         if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS) {
             glfwSetWindowShouldClose(window, true);
         }
+
+        double[] xpos = new double[1];
+        double[] ypos = new double[1];
+        glfwGetCursorPos(window, xpos, ypos);
+        glfwSetCursorPos(window, 800 / 2, 600 / 2);
+
+        this.direction.setX((float) (800 / 2 - xpos[0]));
+        this.direction.setY((float) (600 / 2 - ypos[0]));
     }
 
     public static void main(String[] args) {
