@@ -1,5 +1,7 @@
 package cloud.bos;
 
+import cloud.bos.math.Matrix4f;
+
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -69,6 +71,10 @@ public class ShaderProgram {
 
     public void setFloat(String name, float value) {
         glUniform1f(getUniformLocation(name), value);
+    }
+
+    public void setMatrix4f(String name, Matrix4f matrix) {
+        glUniformMatrix4fv(getUniformLocation(name), true, matrix.getFlatMatrix());
     }
 
     private int getUniformLocation(String name) {

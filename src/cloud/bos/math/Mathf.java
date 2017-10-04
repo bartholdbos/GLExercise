@@ -10,6 +10,10 @@ public class Mathf {
         return (float)Math.pow(f, 2);
     }
 
+    public static float pow(float a, float b) {
+        return (float) Math.pow(a, b);
+    }
+
     public static float sin(float f) {
         return (float)Math.sin(f);
     }

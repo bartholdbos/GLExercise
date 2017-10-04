@@ -16,7 +16,18 @@ public class Vector3f {
         this.z = z;
     }
 
-    public void mul(Matrix4f matrix){
+    public Vector3f imul(Matrix4f matrix){
+        Vector3f res = new Vector3f();
+        float[][] a = matrix.getMatrix();
+
+        res.setX(a[0][0] * x + a[0][1] * y + a[0][2] * z + a[0][3]);
+        res.setY(a[1][0] * x + a[1][1] * y + a[1][2] * z + a[1][3]);
+        res.setZ(a[2][0] * x + a[2][1] * y + a[2][2] * z + a[2][3]);
+
+        return res;
+    }
+
+    public Vector3f mul(Matrix4f matrix){
         float[][] a = matrix.getMatrix();
 
         float newx = a[0][0] * x + a[0][1] * y + a[0][2] * z + a[0][3];
@@ -26,6 +37,7 @@ public class Vector3f {
         this.x = newx;
         this.y = newy;
         this.z = newz;
+        return this;
     }
 
 

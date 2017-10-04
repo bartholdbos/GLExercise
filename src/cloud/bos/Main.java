@@ -1,6 +1,8 @@
 package cloud.bos;
 
+import cloud.bos.math.Mathf;
 import cloud.bos.math.Matrix4f;
+import cloud.bos.math.Transform;
 import cloud.bos.math.Vector3f;
 import org.lwjgl.glfw.GLFWErrorCallback;
 import org.lwjgl.glfw.GLFWVidMode;
@@ -11,7 +13,7 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.IntBuffer;
 
-import static java.lang.Math.sin;
+import static java.lang.Math.PI;
 import static org.lwjgl.glfw.Callbacks.glfwFreeCallbacks;
 import static org.lwjgl.glfw.GLFW.*;
 import static org.lwjgl.opengl.GL11.*;
@@ -87,18 +89,9 @@ public class Main {
             e.printStackTrace();
         }
 
-//        Matrix4f scale = Matrix4f.createScaleMatrix(new Vector3f(1.5f, 1.5f, 1.5f));
-//        Matrix4f translate = Matrix4f.createTransformationMatrix(new Vector3f(1.0f, 0.0f, 0.0f));
-//        Matrix4f transform = translate.mul(scale);
-        Matrix4f transform = Matrix4f.rotationMatrix(new Vector3f(0.0f, 0.0f, 0));
-
         Vector3f bottomright = new Vector3f(0.5f, -0.5f, 0.0f);
         Vector3f bottomleft = new Vector3f(-0.5f, -0.5f, 0.0f);
         Vector3f top = new Vector3f(0.0f,  0.5f, 0.0f);
-
-        bottomright.mul(transform);
-        bottomleft.mul(transform);
-        top.mul(transform);
 
         float vertices[] = {
                 bottomright.getX(), bottomright.getY(), bottomright.getZ(), 1.0f, 0.0f, 0.0f,   // bottom right
@@ -106,19 +99,19 @@ public class Main {
                 top.getX(),         top.getY(),         top.getZ(),         0.0f, 0.0f, 1.0f    // top
         };
 
-//        int indices[] = { // new
+//        int indices[] = { // EBO
 //                0, 1, 3,
 //                1, 2, 3
 //        };
 
         int VAO = glGenVertexArrays();
         int VBO = glGenBuffers();
-//        int EBO = glGenBuffers(); // new
+//        int EBO = glGenBuffers(); // EBO
         glBindVertexArray(VAO);
         glBindBuffer(GL_ARRAY_BUFFER, VBO);
         glBufferData(GL_ARRAY_BUFFER, vertices, GL_STATIC_DRAW);
-//        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
-//        glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices, GL_STATIC_DRAW);
+//        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO); // EBO
+//        glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices, GL_STATIC_DRAW); // EBO
 
         glVertexAttribPointer(0, 3, GL_FLOAT, false, 6 * Float.SIZE / Byte.SIZE, 0);
         glEnableVertexAttribArray(0);
@@ -127,24 +120,32 @@ public class Main {
 
         glBindBuffer(GL_ARRAY_BUFFER, 0);
         glBindVertexArray(0);
-//        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+//        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0); // EBO
 
-//        glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-
+//        glPolygonMode(GL_FRONT_AND_BACK, GL_LINE); // EBO
         while (!glfwWindowShouldClose(window)) {
             processInput(window);
 
             glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-            float timeValue = (float) glfwGetTime();
-            float greenValue = (float) ((sin(timeValue) / 2.0f) + 0.5f);
             shaderProgram.bind();
-            //shaderProgram.setFloat("green", greenValue);
 
+            Matrix4f transtest = Transform.identityMatrix();
+
+            float scaler = (Mathf.sin((float) glfwGetTime()) / 4.0f) + 0.75f;
+            Vector3f scale= new Vector3f(scaler, scaler, scaler);
+            //transtest.mul(Transform.scaleMatrix(scale));
+
+            transtest.mul(Transform.translateMatrix(scale));
+            //System.out.println(transtest);
+
+//            float scaler1 = (float) glfwGetTime() / 2 % 2 * (float) PI;
+//            transtest.mul(Transform.rotationMatrix(new Vector3f(0.0f, 0.0f, scaler1)));
+
+            shaderProgram.setMatrix4f("transform", transtest);
 
             glBindVertexArray(VAO);
-            //glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
             glDrawArrays(GL_TRIANGLES, 0, 3);
 
             shaderProgram.unbind();
