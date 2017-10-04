@@ -137,13 +137,17 @@ public class Main {
             Vector3f scale= new Vector3f(scaler, scaler, scaler);
             //transtest.mul(Transform.scaleMatrix(scale));
 
-            transtest.mul(Transform.translateMatrix(scale));
             //System.out.println(transtest);
 
-//            float scaler1 = (float) glfwGetTime() / 2 % 2 * (float) PI;
-//            transtest.mul(Transform.rotationMatrix(new Vector3f(0.0f, 0.0f, scaler1)));
+            float scaler1 = (float) glfwGetTime() / 2 % 2 * (float) PI;
+//            transtest.mul(Transform.translateMatrix(new Vector3f(0.5f, -0.5f, 0.0f)));
+//            transtest.mul(Transform.rotationMatrix(new Vector3f(0.0f, scaler1, 0.0f)));
 
             shaderProgram.setMatrix4f("transform", transtest);
+
+            Matrix4f viewmatrix = Transform.identityMatrix();
+            viewmatrix.mul(Transform.rotationMatrix(new Vector3f(0.3f * (float) PI, 0.0f * (float) PI, 0.0f * (float) PI)));
+            shaderProgram.setMatrix4f("view", viewmatrix);
 
             glBindVertexArray(VAO);
             glDrawArrays(GL_TRIANGLES, 0, 3);
