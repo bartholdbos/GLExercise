@@ -27,28 +27,6 @@ public class Main {
     private long window;
 
     public Main() {
-        Matrix4f translate = new Matrix4f(new float[][]{
-                {1, 0, 0, 1},
-                {0, 1, 0, 2},
-                {0, 0, 1, 3},
-                {0, 0, 0, 1}
-        });
-
-        Matrix4f scale = new Matrix4f(new float[][]{
-                {2, 0, 0, 0},
-                {0, 2, 0, 0},
-                {0, 0, 2, 0},
-                {0, 0, 0, 1}
-        });
-
-        Vector3f vector = new Vector3f(10, 10, 10);
-
-        Matrix4f scaletranslate = translate.mul(scale);
-        vector.mul(scaletranslate);
-        System.out.println(scaletranslate);
-        System.out.println(vector);
-
-
         init();
         loop();
         destroy();
@@ -109,11 +87,23 @@ public class Main {
             e.printStackTrace();
         }
 
+//        Matrix4f scale = Matrix4f.createScaleMatrix(new Vector3f(1.5f, 1.5f, 1.5f));
+//        Matrix4f translate = Matrix4f.createTransformationMatrix(new Vector3f(1.0f, 0.0f, 0.0f));
+//        Matrix4f transform = translate.mul(scale);
+        Matrix4f transform = Matrix4f.rotationMatrix(new Vector3f(0.0f, 0.0f, 0));
+
+        Vector3f bottomright = new Vector3f(0.5f, -0.5f, 0.0f);
+        Vector3f bottomleft = new Vector3f(-0.5f, -0.5f, 0.0f);
+        Vector3f top = new Vector3f(0.0f,  0.5f, 0.0f);
+
+        bottomright.mul(transform);
+        bottomleft.mul(transform);
+        top.mul(transform);
+
         float vertices[] = {
-                0.5f, -0.5f, 0.0f, 1.0f, 0.0f, 0.0f,   // bottom right
-                -0.5f, -0.5f, 0.0f, 0.0f, 1.0f, 0.0f,   // bottom left
-                0.0f, 0.5f, 0.0f, 0.0f, 0.0f, 1.0f    // top
-//                -0.5f,  0.5f, 0.0f   // top left
+                bottomright.getX(), bottomright.getY(), bottomright.getZ(), 1.0f, 0.0f, 0.0f,   // bottom right
+                bottomleft.getX(),  bottomleft.getY(),  bottomleft.getZ(),  0.0f, 1.0f, 0.0f,   // bottom left
+                top.getX(),         top.getY(),         top.getZ(),         0.0f, 0.0f, 1.0f    // top
         };
 
 //        int indices[] = { // new
