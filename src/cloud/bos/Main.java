@@ -27,6 +27,8 @@ import static org.lwjgl.system.MemoryUtil.NULL;
 public class Main {
 
     private long window;
+    private Vector3f position = new Vector3f();
+    private Vector3f rotation = new Vector3f();
 
     public Main() {
         init();
@@ -77,6 +79,7 @@ public class Main {
         glfwSwapInterval(1);
         glfwShowWindow(window);
         GL.createCapabilities();
+        glEnable(GL_DEPTH_TEST);
     }
 
     private void loop() {
@@ -89,14 +92,48 @@ public class Main {
             e.printStackTrace();
         }
 
-        Vector3f bottomright = new Vector3f(0.5f, -0.5f, 0.0f);
-        Vector3f bottomleft = new Vector3f(-0.5f, -0.5f, 0.0f);
-        Vector3f top = new Vector3f(0.0f,  0.5f, 0.0f);
-
         float vertices[] = {
-                bottomright.getX(), bottomright.getY(), bottomright.getZ(), 1.0f, 0.0f, 0.0f,   // bottom right
-                bottomleft.getX(),  bottomleft.getY(),  bottomleft.getZ(),  0.0f, 1.0f, 0.0f,   // bottom left
-                top.getX(),         top.getY(),         top.getZ(),         0.0f, 0.0f, 1.0f    // top
+                -0.5f, -0.5f, -0.5f,  1.0f, 1.0f, 1.0f, //FRONT WHITE
+                 0.5f, -0.5f, -0.5f,  1.0f, 1.0f, 1.0f,
+                 0.5f,  0.5f, -0.5f,  1.0f, 1.0f, 1.0f,
+                 0.5f,  0.5f, -0.5f,  1.0f, 1.0f, 1.0f,
+                -0.5f,  0.5f, -0.5f,  1.0f, 1.0f, 1.0f,
+                -0.5f, -0.5f, -0.5f,  1.0f, 1.0f, 1.0f,
+
+                -0.5f, -0.5f,  0.5f,  0.0f, 1.0f, 0.0f, //BACK GREEN
+                 0.5f, -0.5f,  0.5f,  0.0f, 1.0f, 0.0f,
+                 0.5f,  0.5f,  0.5f,  0.0f, 1.0f, 0.0f,
+                 0.5f,  0.5f,  0.5f,  0.0f, 1.0f, 0.0f,
+                -0.5f,  0.5f,  0.5f,  0.0f, 1.0f, 0.0f,
+                -0.5f, -0.5f,  0.5f,  0.0f, 1.0f, 0.0f,
+
+                -0.5f,  0.5f,  0.5f,  0.0f, 0.0f, 1.0f, //TOP BLUE
+                -0.5f,  0.5f, -0.5f,  0.0f, 0.0f, 1.0f,
+                -0.5f, -0.5f, -0.5f,  0.0f, 0.0f, 1.0f,
+                -0.5f, -0.5f, -0.5f,  0.0f, 0.0f, 1.0f,
+                -0.5f, -0.5f,  0.5f,  0.0f, 0.0f, 1.0f,
+                -0.5f,  0.5f,  0.5f,  0.0f, 0.0f, 1.0f,
+
+                 0.5f,  0.5f,  0.5f,  0.5f, 0.5f, 0.5f, //SIDE GRAY
+                 0.5f,  0.5f, -0.5f,  0.5f, 0.5f, 0.5f,
+                 0.5f, -0.5f, -0.5f,  0.5f, 0.5f, 0.5f,
+                 0.5f, -0.5f, -0.5f,  0.5f, 0.5f, 0.5f,
+                 0.5f, -0.5f,  0.5f,  0.5f, 0.5f, 0.5f,
+                 0.5f,  0.5f,  0.5f,  0.5f, 0.5f, 0.5f,
+
+                -0.5f, -0.5f, -0.5f,  1.0f, 1.0f, 0.0f, //BOTTOM YELLOW
+                 0.5f, -0.5f, -0.5f,  1.0f, 1.0f, 0.0f,
+                 0.5f, -0.5f,  0.5f,  1.0f, 1.0f, 0.0f,
+                 0.5f, -0.5f,  0.5f,  1.0f, 1.0f, 0.0f,
+                -0.5f, -0.5f,  0.5f,  1.0f, 1.0f, 0.0f,
+                -0.5f, -0.5f, -0.5f,  1.0f, 1.0f, 0.0f,
+
+                -0.5f,  0.5f, -0.5f,  1.0f, 0.0f, 0.0f, //SIDE RED
+                 0.5f,  0.5f, -0.5f,  1.0f, 0.0f, 0.0f,
+                 0.5f,  0.5f,  0.5f,  1.0f, 0.0f, 0.0f,
+                 0.5f,  0.5f,  0.5f,  1.0f, 0.0f, 0.0f,
+                -0.5f,  0.5f,  0.5f,  1.0f, 0.0f, 0.0f,
+                -0.5f,  0.5f, -0.5f,  1.0f, 0.0f, 0.0f
         };
 
 //        int indices[] = { // EBO
@@ -123,6 +160,7 @@ public class Main {
 //        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0); // EBO
 
 //        glPolygonMode(GL_FRONT_AND_BACK, GL_LINE); // EBO
+        glfwSetCursorPos(window, 800 / 2, 600 / 2);
         while (!glfwWindowShouldClose(window)) {
             processInput(window);
 
@@ -145,12 +183,20 @@ public class Main {
 
             shaderProgram.setMatrix4f("transform", transtest);
 
-            Matrix4f viewmatrix = Transform.identityMatrix();
-            viewmatrix.mul(Transform.rotationMatrix(new Vector3f(0.3f * (float) PI, 0.0f * (float) PI, 0.0f * (float) PI)));
-            shaderProgram.setMatrix4f("view", viewmatrix);
+            Matrix4f projectionMatrix = Transform.identityMatrix();
+
+
+            Matrix4f viewMatrix = look(position, rotation);
+
+
+            Matrix4f modelMatrix = Transform.identityMatrix();
+            modelMatrix.mul(Transform.translateMatrix(new Vector3f(0.5f, 0.0f, 0.0f)));
+
+
+            shaderProgram.setMatrix4f("view", projectionMatrix.mul(viewMatrix).mul(modelMatrix));
 
             glBindVertexArray(VAO);
-            glDrawArrays(GL_TRIANGLES, 0, 3);
+            glDrawArrays(GL_TRIANGLES, 0, 36);
 
             shaderProgram.unbind();
 
@@ -159,6 +205,35 @@ public class Main {
         }
 
         shaderProgram.delete();
+    }
+
+    private Matrix4f look(Vector3f position, Vector3f rotation){
+        Matrix4f viewMatrix = Transform.identityMatrix();
+
+        viewMatrix.mul(Transform.translateMatrix(new Vector3f(
+                -position.getX(),
+                -position.getY(),
+                -position.getZ()
+        )));
+
+        viewMatrix.mul(Transform.rotationMatrix(new Vector3f(
+                rotation.getX(),
+                rotation.getY(),
+                0.0f
+        )));
+
+        //            viewMatrix.mul(Transform.translateMatrix(new Vector3f(
+//                    1.0f,
+//                    0.0f,
+//                    0.0f
+//            )));
+//            viewMatrix.mul(Transform.rotationMatrix(new Vector3f(
+//                    (float) (0.0f * PI),
+//                    (float) (0.2f * PI),
+//                    (float) (0.0f * PI)
+//            )));
+
+        return viewMatrix;
     }
 
     private void destroy() {
@@ -173,6 +248,30 @@ public class Main {
         if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS) {
             glfwSetWindowShouldClose(window, true);
         }
+
+        if (glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS){
+            rotation.setX(rotation.getX() - 0.1f);
+        }
+
+        if (glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS){
+            rotation.setX(rotation.getX() + 0.1f);
+        }
+
+        if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS){
+            position.setX(position.getX() - 0.1f);
+        }
+
+        if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS){
+            position.setX(position.getX() + 0.1f);
+        }
+
+        double[] xpos = new double[1];
+        double[] ypos = new double[1];
+        glfwGetCursorPos(window, xpos, ypos);
+        //glfwSetCursorPos(window, 800 / 2, 600 / 2);
+
+//        rotation.setX(rotation.getX() + (float) (800 / 2 - xpos[0]) / 0.02f);
+//        rotation.setY(rotation.getY() + (float) (600 / 2 - ypos[0]) / 0.02f);
     }
 
     public static void main(String[] args) {
