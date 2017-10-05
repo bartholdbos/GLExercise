@@ -13,9 +13,7 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.IntBuffer;
 
-import static cloud.bos.math.Mathf.cos;
 import static java.lang.Math.PI;
-import static java.lang.Math.floor;
 import static org.lwjgl.glfw.Callbacks.glfwFreeCallbacks;
 import static org.lwjgl.glfw.GLFW.*;
 import static org.lwjgl.opengl.GL11.*;
@@ -30,7 +28,7 @@ public class Main {
 
     private long window;
     private Vector3f position = new Vector3f();
-    private Vector3f direction = new Vector3f();
+    private Vector3f rotation = new Vector3f();
 
     public Main() {
         init();
@@ -127,6 +125,7 @@ public class Main {
 //        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0); // EBO
 
 //        glPolygonMode(GL_FRONT_AND_BACK, GL_LINE); // EBO
+        glfwSetCursorPos(window, 800 / 2, 600 / 2);
         while (!glfwWindowShouldClose(window)) {
             processInput(window);
 
@@ -152,15 +151,7 @@ public class Main {
             Matrix4f projectionMatrix = Transform.identityMatrix();
 
 
-            Matrix4f viewMatrix = Transform.identityMatrix();
-//            cos(verticalAngle) * sin(horizontalAngle),
-//                    sin(verticalAngle),
-//                    cos(verticalAngle) * cos(horizontalAngle)
-            viewMatrix.mul(Transform.rotationMatrix(new Vector3f(
-                    cos(direction.getX()),
-                    0.0f * (float) PI,
-                    0.0f * (float) PI
-            )));
+            Matrix4f viewMatrix = look(position, rotation);
 
 
             Matrix4f modelMatrix = Transform.identityMatrix();
@@ -180,6 +171,35 @@ public class Main {
         shaderProgram.delete();
     }
 
+    private Matrix4f look(Vector3f position, Vector3f rotation){
+        Matrix4f viewMatrix = Transform.identityMatrix();
+
+        viewMatrix.mul(Transform.translateMatrix(new Vector3f(
+                -position.getX(),
+                -position.getY(),
+                -position.getZ()
+        )));
+
+        viewMatrix.mul(Transform.rotationMatrix(new Vector3f(
+                rotation.getX(),
+                rotation.getY(),
+                0.0f
+        )));
+
+        //            viewMatrix.mul(Transform.translateMatrix(new Vector3f(
+//                    1.0f,
+//                    0.0f,
+//                    0.0f
+//            )));
+//            viewMatrix.mul(Transform.rotationMatrix(new Vector3f(
+//                    (float) (0.0f * PI),
+//                    (float) (0.2f * PI),
+//                    (float) (0.0f * PI)
+//            )));
+
+        return viewMatrix;
+    }
+
     private void destroy() {
         glfwFreeCallbacks(window);
         glfwDestroyWindow(window);
@@ -193,13 +213,29 @@ public class Main {
             glfwSetWindowShouldClose(window, true);
         }
 
+        if (glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS){
+            rotation.setX(rotation.getX() - 0.1f);
+        }
+
+        if (glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS){
+            rotation.setX(rotation.getX() + 0.1f);
+        }
+
+        if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS){
+            position.setX(position.getX() - 0.1f);
+        }
+
+        if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS){
+            position.setX(position.getX() + 0.1f);
+        }
+
         double[] xpos = new double[1];
         double[] ypos = new double[1];
         glfwGetCursorPos(window, xpos, ypos);
-        glfwSetCursorPos(window, 800 / 2, 600 / 2);
+        //glfwSetCursorPos(window, 800 / 2, 600 / 2);
 
-        this.direction.setX((float) (800 / 2 - xpos[0]));
-        this.direction.setY((float) (600 / 2 - ypos[0]));
+//        rotation.setX(rotation.getX() + (float) (800 / 2 - xpos[0]) / 0.02f);
+//        rotation.setY(rotation.getY() + (float) (600 / 2 - ypos[0]) / 0.02f);
     }
 
     public static void main(String[] args) {
