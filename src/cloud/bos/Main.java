@@ -79,6 +79,7 @@ public class Main {
         glfwSwapInterval(1);
         glfwShowWindow(window);
         GL.createCapabilities();
+        glEnable(GL_DEPTH_TEST);
     }
 
     private void loop() {
@@ -91,14 +92,48 @@ public class Main {
             e.printStackTrace();
         }
 
-        Vector3f bottomright = new Vector3f(0.5f, -0.5f, 0.0f);
-        Vector3f bottomleft = new Vector3f(-0.5f, -0.5f, 0.0f);
-        Vector3f top = new Vector3f(0.0f,  0.5f, 0.0f);
-
         float vertices[] = {
-                bottomright.getX(), bottomright.getY(), bottomright.getZ(), 1.0f, 0.0f, 0.0f,   // bottom right
-                bottomleft.getX(),  bottomleft.getY(),  bottomleft.getZ(),  0.0f, 1.0f, 0.0f,   // bottom left
-                top.getX(),         top.getY(),         top.getZ(),         0.0f, 0.0f, 1.0f    // top
+                -0.5f, -0.5f, -0.5f,  1.0f, 1.0f, 1.0f, //FRONT WHITE
+                 0.5f, -0.5f, -0.5f,  1.0f, 1.0f, 1.0f,
+                 0.5f,  0.5f, -0.5f,  1.0f, 1.0f, 1.0f,
+                 0.5f,  0.5f, -0.5f,  1.0f, 1.0f, 1.0f,
+                -0.5f,  0.5f, -0.5f,  1.0f, 1.0f, 1.0f,
+                -0.5f, -0.5f, -0.5f,  1.0f, 1.0f, 1.0f,
+
+                -0.5f, -0.5f,  0.5f,  0.0f, 1.0f, 0.0f, //BACK GREEN
+                 0.5f, -0.5f,  0.5f,  0.0f, 1.0f, 0.0f,
+                 0.5f,  0.5f,  0.5f,  0.0f, 1.0f, 0.0f,
+                 0.5f,  0.5f,  0.5f,  0.0f, 1.0f, 0.0f,
+                -0.5f,  0.5f,  0.5f,  0.0f, 1.0f, 0.0f,
+                -0.5f, -0.5f,  0.5f,  0.0f, 1.0f, 0.0f,
+
+                -0.5f,  0.5f,  0.5f,  0.0f, 0.0f, 1.0f, //TOP BLUE
+                -0.5f,  0.5f, -0.5f,  0.0f, 0.0f, 1.0f,
+                -0.5f, -0.5f, -0.5f,  0.0f, 0.0f, 1.0f,
+                -0.5f, -0.5f, -0.5f,  0.0f, 0.0f, 1.0f,
+                -0.5f, -0.5f,  0.5f,  0.0f, 0.0f, 1.0f,
+                -0.5f,  0.5f,  0.5f,  0.0f, 0.0f, 1.0f,
+
+                 0.5f,  0.5f,  0.5f,  0.5f, 0.5f, 0.5f, //SIDE GRAY
+                 0.5f,  0.5f, -0.5f,  0.5f, 0.5f, 0.5f,
+                 0.5f, -0.5f, -0.5f,  0.5f, 0.5f, 0.5f,
+                 0.5f, -0.5f, -0.5f,  0.5f, 0.5f, 0.5f,
+                 0.5f, -0.5f,  0.5f,  0.5f, 0.5f, 0.5f,
+                 0.5f,  0.5f,  0.5f,  0.5f, 0.5f, 0.5f,
+
+                -0.5f, -0.5f, -0.5f,  1.0f, 1.0f, 0.0f, //BOTTOM YELLOW
+                 0.5f, -0.5f, -0.5f,  1.0f, 1.0f, 0.0f,
+                 0.5f, -0.5f,  0.5f,  1.0f, 1.0f, 0.0f,
+                 0.5f, -0.5f,  0.5f,  1.0f, 1.0f, 0.0f,
+                -0.5f, -0.5f,  0.5f,  1.0f, 1.0f, 0.0f,
+                -0.5f, -0.5f, -0.5f,  1.0f, 1.0f, 0.0f,
+
+                -0.5f,  0.5f, -0.5f,  1.0f, 0.0f, 0.0f, //SIDE RED
+                 0.5f,  0.5f, -0.5f,  1.0f, 0.0f, 0.0f,
+                 0.5f,  0.5f,  0.5f,  1.0f, 0.0f, 0.0f,
+                 0.5f,  0.5f,  0.5f,  1.0f, 0.0f, 0.0f,
+                -0.5f,  0.5f,  0.5f,  1.0f, 0.0f, 0.0f,
+                -0.5f,  0.5f, -0.5f,  1.0f, 0.0f, 0.0f
         };
 
 //        int indices[] = { // EBO
@@ -155,12 +190,13 @@ public class Main {
 
 
             Matrix4f modelMatrix = Transform.identityMatrix();
+            modelMatrix.mul(Transform.translateMatrix(new Vector3f(0.5f, 0.0f, 0.0f)));
 
 
             shaderProgram.setMatrix4f("view", projectionMatrix.mul(viewMatrix).mul(modelMatrix));
 
             glBindVertexArray(VAO);
-            glDrawArrays(GL_TRIANGLES, 0, 3);
+            glDrawArrays(GL_TRIANGLES, 0, 36);
 
             shaderProgram.unbind();
 
