@@ -32,7 +32,7 @@ import static org.lwjgl.system.MemoryUtil.NULL;
 public class Main {
 
     private long window;
-    private Vector3f position = new Vector3f();
+    private Vector3f position = new Vector3f(0.0f, 0.0f, 0.0f);
     private Vector3f rotation = new Vector3f();
 
     public Main() {
@@ -188,19 +188,28 @@ public class Main {
             shaderProgram.bind();
 
             Matrix4f view = Transform.identityMatrix();
-            view.mul(Transform.translateMatrix(new Vector3f(-position.getX(), 0.0f, 0.0f)));
+            System.out.println(position.getX() + ", " + position.getY() + ", " + position.getZ());
+            view.mul(Transform.translateMatrix(new Vector3f(-position.getX(), position.getZ(), position.getY())));
             shaderProgram.setMatrix4f("view", view);
 
-            Mat4 proj = Matrices.perspective(toRadians(45.0f), 800/600, 0.1f, 100.0f);
+            Mat4 proj = Matrices.perspective((float) (toRadians(180.0f)), 800/600, 0.1f, 100.0f);
             float[][] test = new float[4][4];
             for(int i = 0; i < 4; i++){
                 for (int j = 0; j < 4; j++){
-                    test[i][j] = proj.getBuffer().get(j+i*4);
+                    test[j][i] = proj.getBuffer().get(j+i*4);
                 }
             }
-            Matrix4f projection = Transform.identityMatrix();
 
-            shaderProgram.setMatrix4f("projection", projection);
+            Matrix4f projection = new Matrix4f(test);
+
+            Matrix4f exprojection = new Matrix4f(new float[][]{
+                    {1.0f, 0.0f, 0.0f, 0.0f},
+                    {0.0f, 1.0f, 0.0f, 0.0f},
+                    {0.0f, 0.0f, 1.0f, 0.0f},
+                    {0.0f, 0.0f, 0.0f, 1.0f}
+            });
+
+            shaderProgram.setMatrix4f("projection", exprojection);
 
             glBindVertexArray(VAO);
             for (int i = 0; i < 10; i++){
@@ -208,7 +217,7 @@ public class Main {
                 model.mul(Transform.translateMatrix(cubePositions[i]));
 
                 float angle = 20.0f * i;
-                model.mul(Transform.rotationMatrix(new Vector3f(toRadians(angle), 0.0f, 0.0f)));
+                model.mul(Transform.rotationMatrix(new Vector3f(toRadians(angle), toRadians(angle) * 0.3f, toRadians(angle) *0.5f)));
 
                 shaderProgram.setMatrix4f("model", model);
 
@@ -307,12 +316,12 @@ public class Main {
             glfwSetWindowShouldClose(window, true);
         }
 
-        if (glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS){
-            rotation.setX(rotation.getX() - 0.1f);
+        if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS){
+            position.setY(position.getY() + 0.5f);
         }
 
-        if (glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS){
-            rotation.setX(rotation.getX() + 0.1f);
+        if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS){
+            position.setY(position.getY() - 0.5f);
         }
 
         if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS){
@@ -321,6 +330,14 @@ public class Main {
 
         if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS){
             position.setX(position.getX() + 0.1f);
+        }
+
+        if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS){
+            position.setZ(position.getZ() + 0.5f);
+        }
+
+        if (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS){
+            position.setZ(position.getZ() - 0.5f);
         }
 
         double[] xpos = new double[1];
