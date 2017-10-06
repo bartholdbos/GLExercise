@@ -4,6 +4,10 @@ import cloud.bos.math.Mathf;
 import cloud.bos.math.Matrix4f;
 import cloud.bos.math.Transform;
 import cloud.bos.math.Vector3f;
+import com.hackoeur.jglm.Mat4;
+import com.hackoeur.jglm.Matrices;
+import com.hackoeur.jglm.Vec;
+import com.hackoeur.jglm.Vec4;
 import org.lwjgl.glfw.GLFWErrorCallback;
 import org.lwjgl.glfw.GLFWVidMode;
 import org.lwjgl.opengl.GL;
@@ -13,6 +17,7 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.IntBuffer;
 
+import static cloud.bos.math.Mathf.toRadians;
 import static java.lang.Math.PI;
 import static org.lwjgl.glfw.Callbacks.glfwFreeCallbacks;
 import static org.lwjgl.glfw.GLFW.*;
@@ -136,6 +141,19 @@ public class Main {
                 -0.5f,  0.5f, -0.5f,  1.0f, 0.0f, 0.0f
         };
 
+        Vector3f[] cubePositions = {
+                new Vector3f( 0.0f,  0.0f,  0.0f),
+                new Vector3f( 2.0f,  5.0f, -15.0f),
+                new Vector3f(-1.5f, -2.2f, -2.5f),
+                new Vector3f(-3.8f, -2.0f, -12.3f),
+                new Vector3f( 2.4f, -0.4f, -3.5f),
+                new Vector3f(-1.7f,  3.0f, -7.5f),
+                new Vector3f( 1.3f, -2.0f, -2.5f),
+                new Vector3f( 1.5f,  2.0f, -2.5f),
+                new Vector3f( 1.5f,  0.2f, -1.5f),
+                new Vector3f(-1.3f,  1.0f, -1.5f),
+        };
+
 //        int indices[] = { // EBO
 //                0, 1, 3,
 //                1, 2, 3
@@ -169,36 +187,76 @@ public class Main {
 
             shaderProgram.bind();
 
-            Matrix4f transtest = Transform.identityMatrix();
+            Matrix4f view = Transform.identityMatrix();
+            view.mul(Transform.translateMatrix(new Vector3f(-position.getX(), 0.0f, 0.0f)));
+            shaderProgram.setMatrix4f("view", view);
 
-            float scaler = (Mathf.sin((float) glfwGetTime()) / 4.0f) + 0.75f;
-            Vector3f scale= new Vector3f(scaler, scaler, scaler);
-            //transtest.mul(Transform.scaleMatrix(scale));
+            Mat4 proj = Matrices.perspective(toRadians(45.0f), 800/600, 0.1f, 100.0f);
+            float[][] test = new float[4][4];
+            for(int i = 0; i < 4; i++){
+                for (int j = 0; j < 4; j++){
+                    test[i][j] = proj.getBuffer().get(j+i*4);
+                }
+            }
+            Matrix4f projection = Transform.identityMatrix();
 
-            //System.out.println(transtest);
-
-            float scaler1 = (float) glfwGetTime() / 2 % 2 * (float) PI;
-//            transtest.mul(Transform.translateMatrix(new Vector3f(0.5f, -0.5f, 0.0f)));
-//            transtest.mul(Transform.rotationMatrix(new Vector3f(0.0f, scaler1, 0.0f)));
-
-            shaderProgram.setMatrix4f("transform", transtest);
-
-            Matrix4f projectionMatrix = Transform.identityMatrix();
-
-
-            Matrix4f viewMatrix = look(position, rotation);
-
-
-            Matrix4f modelMatrix = Transform.identityMatrix();
-            modelMatrix.mul(Transform.translateMatrix(new Vector3f(0.5f, 0.0f, 0.0f)));
-
-
-            shaderProgram.setMatrix4f("view", projectionMatrix.mul(viewMatrix).mul(modelMatrix));
+            shaderProgram.setMatrix4f("projection", projection);
 
             glBindVertexArray(VAO);
-            glDrawArrays(GL_TRIANGLES, 0, 36);
+            for (int i = 0; i < 10; i++){
+                Matrix4f model = Transform.identityMatrix();
+                model.mul(Transform.translateMatrix(cubePositions[i]));
+
+                float angle = 20.0f * i;
+                model.mul(Transform.rotationMatrix(new Vector3f(toRadians(angle), 0.0f, 0.0f)));
+
+                shaderProgram.setMatrix4f("model", model);
+
+                glDrawArrays(GL_TRIANGLES, 0, 36);
+            }
 
             shaderProgram.unbind();
+
+            /**
+             * OLDSTUFF
+             */
+
+//            shaderProgram.bind();
+//
+//            Matrix4f transtest = Transform.identityMatrix();
+//
+//            float scaler = (Mathf.sin((float) glfwGetTime()) / 4.0f) + 0.75f;
+//            Vector3f scale= new Vector3f(scaler, scaler, scaler);
+//            //transtest.mul(Transform.scaleMatrix(scale));
+//
+//            //System.out.println(transtest);
+//
+//            float scaler1 = (float) glfwGetTime() / 2 % 2 * (float) PI;
+//            transtest.mul(Transform.translateMatrix(new Vector3f(0.5f, -0.5f, 0.0f)));
+//            transtest.mul(Transform.rotationMatrix(new Vector3f(0.0f, scaler1, 0.0f)));
+//
+//            shaderProgram.setMatrix4f("transform", transtest);
+//
+//            Matrix4f projectionMatrix = Transform.identityMatrix();
+//
+//
+//            Matrix4f viewMatrix = look(position, rotation);
+//
+//
+//            Matrix4f modelMatrix = Transform.identityMatrix();
+//            modelMatrix.mul(Transform.translateMatrix(new Vector3f(0.5f, 0.0f, 0.0f)));
+//
+//
+//            shaderProgram.setMatrix4f("view", projectionMatrix.mul(viewMatrix).mul(modelMatrix));
+//
+//            glBindVertexArray(VAO);
+//            glDrawArrays(GL_TRIANGLES, 0, 36);
+//
+//            shaderProgram.unbind();
+
+            /**
+             * OLDSTUFF
+             */
 
             glfwSwapBuffers(window);
             glfwPollEvents();
