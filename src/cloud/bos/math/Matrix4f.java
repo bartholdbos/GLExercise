@@ -67,9 +67,10 @@ public class Matrix4f {
         String lines = "";
 
         for (float[] r : this.a) {
-            lines += "[";
-            lines += String.format("%1$.0f %2$.0f %3$.0f %4$.0f", r[0], r[1], r[2], r[3]);
-            lines += "]\n";
+//            lines += "[";
+//            lines += String.format("%1$.0f %2$.0f %3$.0f %4$.0f", r[0], r[1], r[2], r[3]);
+//            lines += "]\n";
+            lines += String.format("(%1$.6f, %2$.6f, %3$.6f, %4$.6f), ", r[0], r[1], r[2], r[3]);
         }
 
         return lines;

@@ -17,6 +17,7 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.IntBuffer;
 
+import static cloud.bos.math.Mathf.tan;
 import static cloud.bos.math.Mathf.toRadians;
 import static java.lang.Math.PI;
 import static org.lwjgl.glfw.Callbacks.glfwFreeCallbacks;
@@ -189,10 +190,11 @@ public class Main {
 
             Matrix4f view = Transform.identityMatrix();
             System.out.println(position.getX() + ", " + position.getY() + ", " + position.getZ());
-            view.mul(Transform.translateMatrix(new Vector3f(-position.getX(), position.getZ(), position.getY())));
+            view.mul(Transform.translateMatrix(new Vector3f(-position.getX(), -position.getY(), position.getZ())));
+//            view.mul(Transform.translateMatrix(new Vector3f(0.0f, 0.0f, -3.0f)));
             shaderProgram.setMatrix4f("view", view);
 
-            Mat4 proj = Matrices.perspective((float) (toRadians(180.0f)), 800/600, 0.1f, 100.0f);
+            Mat4 proj = Matrices.perspective((float) (toRadians(45.0f)), 800/600, 0.1f, 100.0f);
             float[][] test = new float[4][4];
             for(int i = 0; i < 4; i++){
                 for (int j = 0; j < 4; j++){
@@ -203,12 +205,13 @@ public class Main {
             Matrix4f projection = new Matrix4f(test);
 
             Matrix4f exprojection = new Matrix4f(new float[][]{
-                    {1.0f, 0.0f, 0.0f, 0.0f},
-                    {0.0f, 1.0f, 0.0f, 0.0f},
-                    {0.0f, 0.0f, 1.0f, 0.0f},
-                    {0.0f, 0.0f, 0.0f, 1.0f}
+                    {1.810660f, 0.0f, 0.0f, 0.0f},
+                    {0.0f, 2.414213f, 0.0f, 0.0f},
+                    {0.0f, 0.0f, -1.002002f, -0.200200f},
+                    {0.0f, 0.0f, -1.0f, 0.0f}
             });
-
+            System.out.println(exprojection);
+            System.out.println(perspective(toRadians(45.0f), 800/600, 0.1f, 100.0f));
             shaderProgram.setMatrix4f("projection", exprojection);
 
             glBindVertexArray(VAO);
@@ -217,14 +220,15 @@ public class Main {
                 model.mul(Transform.translateMatrix(cubePositions[i]));
 
                 float angle = 20.0f * i;
-                model.mul(Transform.rotationMatrix(new Vector3f(toRadians(angle), toRadians(angle) * 0.3f, toRadians(angle) *0.5f)));
-
+                model.mul(Transform.rotationMatrix(new Vector3f(toRadians(angle) * 0.0f, toRadians(angle) * 0.0f, toRadians(angle) *0.0f)));
+                //System.out.println(model);
                 shaderProgram.setMatrix4f("model", model);
 
                 glDrawArrays(GL_TRIANGLES, 0, 36);
             }
 
             shaderProgram.unbind();
+//            System.exit(0);
 
             /**
              * OLDSTUFF
@@ -272,6 +276,17 @@ public class Main {
         }
 
         shaderProgram.delete();
+    }
+
+    private Matrix4f perspective(float fovy, float aspect, float zNear, float zFar){
+        float tanHalfFovy = tan(fovy / 2.0f);
+
+        return new Matrix4f(new float[][]{
+                {1.0f, 0.0f, 0.0f, 0.0f},
+                {0.0f, 1.0f / (aspect * tanHalfFovy), 0.0f, 0.0f},
+                {0.0f, 0.0f, 1.0f, 0.0f},
+                {0.0f, 0,0f, 0,0f, 1,0f}
+        });
     }
 
     private Matrix4f look(Vector3f position, Vector3f rotation){
